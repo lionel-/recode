@@ -24,28 +24,20 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   c(new, default) %<-% vec_cast_common(new, default, .to = ptype)
 
   if (is_bare_list(old)) {
-    old_ptype <- vec_ptype_common(!!!old, x)
-    old <- vec_cast_common(!!!old, .to = old_ptype)
-    x <- vec_cast(x, old_ptype)
-  } else {
-    c(old, x) %<-% vec_cast_common(old, x)
+    ns <- vapply(old, vec_size, integer(1))
+
+    # FIXME: Use `vctrs::repeat()` once vectorised over `each`
+    new <- rep(new, times = ns)
+
+    old <- vec_c(!!!old)
   }
 
-  out <- vec_init(ptype, vec_size(x))
-  done <- rep_along(out, FALSE)
+  c(old, x) %<-% vec_cast_common(old, x)
 
-  for (i in seq_along(old)) {
-    if (is_bare_list(old)) {
-      haystack <- old[[i]]
-    } else {
-      haystack <- vec_slice(old, i)
-    }
-    where <- vec_in(x, haystack)
-    done <- done | where
-    vec_slice(out, where) <- vec_slice(new, i)
-  }
+  idx <- vec_match(x, old)
+  out <- vec_slice(new, idx)
 
-  todo <- !done
+  todo <- is.na(idx)
   if (any(todo)) {
     default <- default %||% x
     default <- vec_cast(default, ptype)
