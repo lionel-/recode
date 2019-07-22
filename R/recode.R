@@ -21,18 +21,17 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   old <- spec$.old
 
   ptype <- ptype %||% vec_ptype_common(new, default)
-  default <- default %||% x
+  c(new, default) %<-% vec_cast_common(new, default, .to = ptype)
 
-  c(x, new) %<-% vec_cast_common(x, new, .to = ptype)
-
-  # Handle list-columns so multiple values can be mapped to a single key
   if (is_bare_list(old)) {
-    old <- vec_cast_common(!!!old, .to = ptype)
+    old_ptype <- vec_ptype_common(!!!old, x)
+    old <- vec_cast_common(!!!old, .to = old_ptype)
+    x <- vec_cast(x, old_ptype)
   } else {
-    old <- vec_cast(old, to = ptype)
+    c(old, x) %<-% vec_cast_common(old, x)
   }
 
-  out <- vec_init(x, vec_size(x))
+  out <- vec_init(ptype, vec_size(x))
   done <- rep_along(out, FALSE)
 
   for (i in seq_along(old)) {
@@ -43,6 +42,8 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
 
   todo <- !done
   if (any(todo)) {
+    default <- default %||% x
+    default <- vec_cast(default, ptype)
     default <- vec_recycle(default, vec_size(x))
     vec_slice(out, todo) <- vec_slice(default, todo)
   }
