@@ -3,11 +3,11 @@
 NULL
 
 #' @export
-keys <- function(key, value) {
-  tibble::tibble(.key = key, .value = value)
+keys <- function(new, old) {
+  tibble::tibble(.new = new, .old = old)
 }
 is_keys <- function(x) {
-  is.data.frame(x) && all(names(x) %in% c(".key", ".value"))
+  is.data.frame(x) && all(names(x) %in% c(".new", ".old"))
 }
 
 #' @export
@@ -15,30 +15,30 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   ellipsis::check_dots_empty(...)
 
   if (!is_keys(spec)) {
-    abort("`spec` must be a data frame with `.key` and `.value` columns")
+    abort("`spec` must be a data frame with `.new` and `.old` columns")
   }
-  key <- spec$.key
-  value <- spec$.value
+  new <- spec$.new
+  old <- spec$.old
 
-  ptype <- ptype %||% vec_ptype_common(key, default)
+  ptype <- ptype %||% vec_ptype_common(new, default)
   default <- default %||% x
 
-  c(x, key) %<-% vec_cast_common(x, key, .to = ptype)
+  c(x, new) %<-% vec_cast_common(x, new, .to = ptype)
 
   # Handle list-columns so multiple values can be mapped to a single key
-  if (is_bare_list(value)) {
-    value <- vec_cast_common(!!!value, .to = ptype)
+  if (is_bare_list(old)) {
+    old <- vec_cast_common(!!!old, .to = ptype)
   } else {
-    value <- vec_cast(value, to = ptype)
+    old <- vec_cast(old, to = ptype)
   }
 
   out <- vec_init(x, vec_size(x))
   done <- rep_along(out, FALSE)
 
-  for (i in seq_along(value)) {
-    where <- vec_in(x, value[[i]])
+  for (i in seq_along(old)) {
+    where <- vec_in(x, old[[i]])
     done <- done | where
-    vec_slice(out, where) <- key[[i]]
+    vec_slice(out, where) <- new[[i]]
   }
 
   todo <- !done

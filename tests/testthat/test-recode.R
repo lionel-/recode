@@ -19,7 +19,7 @@ test_that("can supply missing values as part of spec", {
 
 test_that("can recode multiple values to multiple keys", {
   spec <- tibble::tribble(
-    ~ .key, ~ .value,
+    ~ .new, ~ .old,
       0L,      c(4, 6),
       1L,      8
   )
