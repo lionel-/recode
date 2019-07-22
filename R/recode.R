@@ -37,7 +37,7 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   for (i in seq_along(old)) {
     where <- vec_in(x, old[[i]])
     done <- done | where
-    vec_slice(out, where) <- new[[i]]
+    vec_slice(out, where) <- vec_slice(new, i)
   }
 
   todo <- !done
