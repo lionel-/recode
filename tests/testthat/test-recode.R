@@ -26,6 +26,18 @@ test_that("can recode multiple values to multiple keys", {
   expect_identical(vec_recode(c(4, 4, 6, 8), spec), int(0, 0, 0, 1))
 })
 
+test_that("can recode nested tibbles", {
+  spec <- tibble::tibble(
+    .new = c("foo", "bar"),
+    .old = tibble::tibble(
+      x = c(1L, 2L),
+      y = c(TRUE, FALSE)
+    )
+  )
+  x <- tibble::tibble(x = c(1, 2, 2, 1), y = c(TRUE, TRUE, FALSE, TRUE))
+  expect_identical(vec_recode(x, spec, default = "baz"), c("foo", "baz", "bar", "foo"))
+})
+
 test_that("can recode to multiple columns with nested tibbles", {
   spec <- tibble::tibble(
     .new = tibble::tibble(

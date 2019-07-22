@@ -35,7 +35,12 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   done <- rep_along(out, FALSE)
 
   for (i in seq_along(old)) {
-    where <- vec_in(x, old[[i]])
+    if (is_bare_list(old)) {
+      haystack <- old[[i]]
+    } else {
+      haystack <- vec_slice(old, i)
+    }
+    where <- vec_in(x, haystack)
     done <- done | where
     vec_slice(out, where) <- vec_slice(new, i)
   }
