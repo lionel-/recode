@@ -3,7 +3,7 @@ context("recode")
 test_that("basic recoding works", {
   cyl <- c(4, 4, 6, 8)
   expect_identical(vec_recode(cyl, keys(0:2, c(4L, 6L, 8L))), int(0, 0, 1, 2))
-  expect_identical(vec_recode(cyl, keys(0:1, c(4L, 6L))), int(0, 0, 1, 8))
+  expect_identical(vec_recode(cyl, keys(0:1, c(4L, 6L))), dbl(0, 0, 1, 8))
   expect_identical(vec_recode(cyl, keys(0:1, c(4L, 6L)), default = 1.5), dbl(0, 0, 1, 1.5))
 })
 
@@ -66,4 +66,8 @@ test_that("can recode to multiple columns with nested tibbles - partial spec + d
     x = c("foo", "foo", "bar", "baz"),
     y = c("quux", "quux", "foofy", "hunoz")
   ))
+})
+
+test_that("result is coercible with default values", {
+  expect_identical(vec_recode(c(1, 2), tibble(.new = NA, .old = 2)), c(1, NA))
 })

@@ -40,7 +40,7 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   todo <- is.na(idx)
   if (any(todo)) {
     default <- default %||% x
-    default <- vec_cast(default, ptype)
+    c(out, default) %<-% vec_cast_common(out, default)
     default <- vec_recycle(default, vec_size(x))
     vec_slice(out, todo) <- vec_slice(default, todo)
   }
