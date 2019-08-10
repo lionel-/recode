@@ -71,3 +71,9 @@ test_that("can recode to multiple columns with nested tibbles - partial spec + d
 test_that("result is coercible with default values", {
   expect_identical(vec_recode(c(1, 2), tibble(.new = NA, .old = 2)), c(1, NA))
 })
+
+test_that("missing values are preserved", {
+  x <- c(1, 2, NA)
+  out <- vec_recode(x, tibble(.new = c("a", "b"), .old = 1:2))
+  expect_identical(out, chr("a", "b", NA))
+})

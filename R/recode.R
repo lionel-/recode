@@ -37,7 +37,7 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   idx <- vec_match(x, old)
   out <- vec_slice(new, idx)
 
-  todo <- is.na(idx)
+  todo <- is.na(idx) & !vec_are_na(x)
   if (any(todo)) {
     # User must supply `default` to avoid this second conversion
     if (is_null(default)) {
@@ -50,4 +50,8 @@ vec_recode <- function(x, spec, ..., default = NULL, ptype = NULL) {
   }
 
   out
+}
+
+vec_are_na <- function(x) {
+  vec_equal(x, vec_init(x, vec_size(x)), na_equal = TRUE)
 }
